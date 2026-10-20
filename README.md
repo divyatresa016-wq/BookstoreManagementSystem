@@ -18,20 +18,19 @@ A desktop-based Bookstore Management System developed using **Java Swing** and *
 - Eclipse IDE
 
 ## Database
-The project uses a MySQL database named 'bookstore_db' with the following tables:
-- books
-- customers
-- purchases
-- purchase_items
+The project uses a MySQL database named `bookstore_db` with the following tables:
+- `books`
+- `customers`
+- `purchases`
+- `purchase_items`
 
-The database schema is provided in 'bookstore_db.sq'.
+The database schema is provided in `bookstore_db.sql`.
 
 ## Setup
 1. Install Java and MySQL.
-2. Run the SQL commands in 'bookstore_db.sql' to create the database and tables.
-3. Configure the MySQL connection using the 'BOOKSTORE_DB_PASSWORD' environment variable.
+2. Run the SQL commands in `bookstore_db.sql` to create the database and tables.
+3. Configure the MySQL connection using the `BOOKSTORE_DB_PASSWORD` environment variable.
 4. Import the project into Eclipse and ensure the required FlatLaf library is added to the project's build path.
 5. Run the application's main class.
 
- 
-The database password is configured locally and is not included in this repository.
+**Note:** The database password is configured locally and is not included in this repository.
