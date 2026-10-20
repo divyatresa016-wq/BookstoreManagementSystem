@@ -33,4 +33,4 @@ The database schema is provided in `bookstore_db.sql`.
 4. Import the project into Eclipse and ensure the required FlatLaf library is added to the project's build path.
 5. Run the application's main class.
 
-**Note:** The database password is configured locally and is not included in this repository.
+The database password is configured locally and is not included in this repository.
