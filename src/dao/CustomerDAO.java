@@ -13,7 +13,6 @@ import java.util.List;
 
 public class CustomerDAO {
 
-    // Add a new customer
     public boolean addCustomer(Customer customer)
             throws SQLException {
 
@@ -32,7 +31,6 @@ public class CustomerDAO {
         }
     }
 
-    // Retrieve all customers
     public List<Customer> getAllCustomers()
             throws SQLException {
 
@@ -60,7 +58,6 @@ public class CustomerDAO {
         return customers;
     }
 
-    // Search customer by ID
     public Customer searchCustomerById(int customerId)
             throws SQLException {
 
@@ -89,7 +86,6 @@ public class CustomerDAO {
         return null;
     }
 
-    // Update customer details
     public boolean updateCustomer(Customer customer)
             throws SQLException {
 
@@ -110,7 +106,6 @@ public class CustomerDAO {
         }
     }
 
-    // Delete customer by ID
     public boolean deleteCustomer(int customerId)
             throws SQLException {
 
