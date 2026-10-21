@@ -18,8 +18,6 @@ public class MainDashboard extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(new Color(248, 247, 241));
-
-     // Application heading
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.setBackground(new Color(35, 76, 58));
         headerPanel.setBorder(
@@ -46,8 +44,6 @@ public class MainDashboard extends JFrame {
 
         headerPanel.add(headingText, BorderLayout.WEST);
         add(headerPanel, BorderLayout.NORTH);
-
-        // Main menu options
         JPanel menuPanel = new JPanel(new GridLayout(4, 1, 12, 16));
 
         menuPanel.setBorder(
@@ -58,7 +54,6 @@ public class MainDashboard extends JFrame {
         JButton customersButton = new JButton("2. Manage Customers");
         JButton purchasesButton = new JButton("3. Manage Purchases");
         JButton exitButton = new JButton("4. Exit");
-     // Style navigation buttons
         Font buttonFont = new Font("SansSerif", Font.BOLD, 18);
 
         booksButton.setFont(buttonFont);
@@ -77,11 +72,8 @@ public class MainDashboard extends JFrame {
         menuPanel.add(exitButton);
 
         add(menuPanel, BorderLayout.CENTER);
-     // Button colours - beige and cream theme
         Color buttonBeige = new Color(232, 220, 200);
         Color buttonText = new Color(65, 55, 45);
-
-        // Management buttons
         booksButton.setBackground(buttonBeige);
         customersButton.setBackground(buttonBeige);
         purchasesButton.setBackground(buttonBeige);
@@ -89,12 +81,8 @@ public class MainDashboard extends JFrame {
         booksButton.setForeground(buttonText);
         customersButton.setForeground(buttonText);
         purchasesButton.setForeground(buttonText);
-
-        // Exit button - slightly darker beige
         exitButton.setBackground(new Color(215, 198, 173));
         exitButton.setForeground(buttonText);
-
-        // Consistent button borders and padding
         booksButton.setBorder(
                 BorderFactory.createEmptyBorder(12, 20, 12, 20));
         customersButton.setBorder(
@@ -108,14 +96,10 @@ public class MainDashboard extends JFrame {
         customersButton.setOpaque(true);
         purchasesButton.setOpaque(true);
         exitButton.setOpaque(true);
-
-        // Open Book Menu
         booksButton.addActionListener(e -> {
             BookManagement bookManagement = new BookManagement();
             bookManagement.setVisible(true);
         });
-
-        // Open Customer Menu
         customersButton.addActionListener(e -> {
             CustomerManagement customerManagement =
                     new CustomerManagement();
@@ -123,18 +107,13 @@ public class MainDashboard extends JFrame {
             customerManagement.setVisible(true);
         });
 
-        // Open Purchase Menu
         purchasesButton.addActionListener(e -> {
             PurchaseManagement purchaseManagement =
                     new PurchaseManagement();
 
             purchaseManagement.setVisible(true);
         });
-
-        // Exit confirmation
         exitButton.addActionListener(e -> exitApplication());
-
-        // Handle the window close button
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
             public void windowClosing(
