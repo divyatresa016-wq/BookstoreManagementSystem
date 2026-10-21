@@ -171,8 +171,21 @@ public class CustomerManagement extends JFrame {
 
         if (name.isEmpty()) {
             JOptionPane.showMessageDialog(
-                    this, "Name is required."
+                    this, "Name is required.",
+                    "Validation Error",
+                    JOptionPane.WARNING_MESSAGE
             );
+            nameField.requestFocusInWindow();
+            return;
+        }
+
+        if (phone.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this, "Phone number is required.",
+                    "Validation Error",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            phoneField.requestFocusInWindow();
             return;
         }
 
