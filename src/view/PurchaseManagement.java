@@ -50,8 +50,6 @@ public class PurchaseManagement extends JFrame {
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
         getContentPane().setBackground(new Color(248, 247, 241));
-
-        // Customer details
         JPanel customerPanel = new JPanel(new GridLayout(1, 2, 8, 8));
         customerPanel.setBackground(new Color(248, 247, 241));
         customerPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -63,8 +61,6 @@ public class PurchaseManagement extends JFrame {
 
         customerPanel.add(new JLabel("Customer Name:"));
         customerPanel.add(customerNameField);
-
-        // Book selection form
         JPanel bookPanel = new JPanel(new GridLayout(2, 2, 8, 8));
         bookPanel.setBackground(new Color(248, 247, 241));
         bookPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -87,8 +83,6 @@ public class PurchaseManagement extends JFrame {
         topPanel.add(bookPanel, BorderLayout.CENTER);
 
         add(topPanel, BorderLayout.NORTH);
-
-        // Shopping cart table
         cartModel = new DefaultTableModel(
                 new String[]{
                         "Book ID", "Title", "Unit Price",
@@ -135,8 +129,6 @@ public class PurchaseManagement extends JFrame {
                 BorderFactory.createTitledBorder("Shopping Cart")
         ));
         cartScroll.getViewport().setBackground(new Color(255, 253, 248));
-
-        // Purchase history table
         historyModel = new DefaultTableModel(
                 new String[]{
                         "Purchase ID", "Customer ID",
@@ -183,8 +175,6 @@ public class PurchaseManagement extends JFrame {
                 BorderFactory.createTitledBorder("Purchase History")
         ));
         historyScroll.getViewport().setBackground(new Color(255, 253, 248));
-
-        // Display both tables vertically
         JSplitPane splitPane = new JSplitPane(
                 JSplitPane.VERTICAL_SPLIT,
                 cartScroll,
@@ -193,8 +183,6 @@ public class PurchaseManagement extends JFrame {
 
         splitPane.setResizeWeight(0.65);
         add(splitPane, BorderLayout.CENTER);
-
-        // Buttons and total
         JPanel bottomPanel = new JPanel(new BorderLayout(5, 5));
         JPanel buttonPanel = new JPanel(new FlowLayout());
 
@@ -222,8 +210,6 @@ public class PurchaseManagement extends JFrame {
         bottomPanel.add(buttonPanel, BorderLayout.CENTER);
 
         add(bottomPanel, BorderLayout.SOUTH);
-
-        // Button actions
         addButton.addActionListener(e -> addBookToCart());
         removeButton.addActionListener(e -> removeSelectedBook());
         refreshButton.addActionListener(e -> loadPurchaseHistory());
@@ -233,8 +219,6 @@ public class PurchaseManagement extends JFrame {
 
         loadPurchaseHistory();
     }
-
-    // Add a book to the shopping cart
     private void addBookToCart() {
 
         try {
@@ -334,8 +318,6 @@ public class PurchaseManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
-
-    // Find customers whose names match the entered name
     private List<Customer> findCustomersByName(String name)
             throws SQLException {
 
@@ -351,8 +333,6 @@ public class PurchaseManagement extends JFrame {
 
         return matches;
     }
-
-    // Remove the selected book from the cart
     private void removeSelectedBook() {
 
         int selectedRow = cartTable.getSelectedRow();
@@ -369,8 +349,6 @@ public class PurchaseManagement extends JFrame {
 
         updateCartTotal();
     }
-
-    // Calculate total amount
     private void updateCartTotal() {
 
         double total = 0.0;
@@ -383,13 +361,9 @@ public class PurchaseManagement extends JFrame {
                 String.format("Cart Total: %.2f", total)
         );
     }
-
-    // Complete purchase using the customer name
     private void completePurchase() {
 
         String customerName = customerNameField.getText().trim();
-
-        // Customer name is compulsory
         if (customerName.isEmpty()) {
             JOptionPane.showMessageDialog(
                     this,
@@ -409,7 +383,6 @@ public class PurchaseManagement extends JFrame {
         }
 
         try {
-            // Retrieve the customer from the database by name
             List<Customer> matches = findCustomersByName(customerName);
 
             if (matches.isEmpty()) {
@@ -422,8 +395,6 @@ public class PurchaseManagement extends JFrame {
                 customerNameField.requestFocusInWindow();
                 return;
             }
-
-            // Prevent purchases being assigned to the wrong customer
             if (matches.size() > 1) {
                 StringBuilder message = new StringBuilder(
                         "Multiple customers have this name.\n"
@@ -447,8 +418,6 @@ public class PurchaseManagement extends JFrame {
                 );
                 return;
             }
-
-            // Automatically retrieve the customer's ID
             Customer customer = matches.get(0);
             int customerId = customer.getCustomerId();
 
@@ -468,10 +437,7 @@ public class PurchaseManagement extends JFrame {
             if (choice != JOptionPane.YES_OPTION) {
                 return;
             }
-
-            // Save the purchase using the retrieved customer ID
-            int purchaseId =
-                    purchaseDAO.createPurchase(customerId, cart);
+            int purchaseId = purchaseDAO.createPurchase(customerId, cart);
 
             JOptionPane.showMessageDialog(
                     this,
@@ -489,8 +455,6 @@ public class PurchaseManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
-
-    // Load purchase history
     private void loadPurchaseHistory() {
 
         try {
@@ -513,7 +477,6 @@ public class PurchaseManagement extends JFrame {
         }
     }
 
-    // Clear the cart
     private void clearCart() {
 
         cart.clear();
@@ -522,7 +485,6 @@ public class PurchaseManagement extends JFrame {
         updateCartTotal();
     }
 
-    // Display database errors
     private void showDatabaseError(SQLException ex) {
 
         JOptionPane.showMessageDialog(
@@ -533,7 +495,6 @@ public class PurchaseManagement extends JFrame {
         );
     }
 
-    // Display details of the selected purchase
     private void viewPurchaseDetails() {
 
         int selectedRow = historyTable.getSelectedRow();
