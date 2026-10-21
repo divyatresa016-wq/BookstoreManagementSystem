@@ -18,7 +18,6 @@ public class DBConnection {
             System.getenv("BOOKSTORE_DB_PASSWORD");
 
     private DBConnection() {
-        // Private constructor prevents external object creation
     }
 
     public static DBConnection getInstance() {
