@@ -18,7 +18,6 @@ import java.util.Map;
 
 public class PurchaseDAO {
 
-    // Create a purchase containing multiple books
     public int createPurchase(int customerId, List<Bill> items)
             throws SQLException {
 
@@ -32,7 +31,6 @@ public class PurchaseDAO {
                     "A purchase must contain at least one book.");
         }
 
-        // Combine quantities for duplicate book IDs
         Map<Integer, Integer> quantities = new LinkedHashMap<>();
 
         for (Bill item : items) {
@@ -63,7 +61,6 @@ public class PurchaseDAO {
 
             try {
 
-                // 1. Verify that the customer exists
                 String customerSQL =
                         "SELECT customer_id FROM customers "
                         + "WHERE customer_id = ?";
@@ -82,7 +79,6 @@ public class PurchaseDAO {
                     }
                 }
 
-                // 2. Lock books, verify stock and calculate total
                 Map<Integer, Double> prices = new LinkedHashMap<>();
                 double totalAmount = 0.0;
 
@@ -111,14 +107,10 @@ public class PurchaseDAO {
 
                             double price = rs.getDouble("price");
                             int stock = rs.getInt("stock");
-
-                            // Validate the book price
                             if (rs.wasNull() || !Double.isFinite(price) || price < 0) {
                                 throw new SQLException(
                                         "Invalid price for book ID " + bookId);
                             }
-
-                            // Validate available stock
                             if (stock < 0) {
                                 throw new SQLException(
                                         "Invalid stock for book ID " + bookId);
@@ -130,8 +122,6 @@ public class PurchaseDAO {
                                         + bookId
                                         + ". Available stock: " + stock);
                             }
-
-                            // Calculate subtotal and validate it
                             double subtotal = price * quantity;
 
                             if (!Double.isFinite(subtotal)) {
@@ -141,8 +131,6 @@ public class PurchaseDAO {
 
                             prices.put(bookId, price);
                             totalAmount += subtotal;
-
-                            // Validate the running total
                             if (!Double.isFinite(totalAmount)) {
                                 throw new SQLException(
                                         "Purchase total is too large.");
@@ -154,7 +142,6 @@ public class PurchaseDAO {
                     throw new SQLException("Invalid purchase total.");
                 }
 
-                // 3. Insert the purchase record
                 String purchaseSQL =
                         "INSERT INTO purchases "
                         + "(customer_id, total_amount) "
@@ -181,7 +168,6 @@ public class PurchaseDAO {
                     }
                 }
 
-                // 4. Insert purchase items and update stock
                 String itemSQL =
                         "INSERT INTO purchase_items "
                         + "(purchase_id, book_id, quantity, unit_price) "
@@ -202,16 +188,11 @@ public class PurchaseDAO {
                         int bookId = entry.getKey();
                         int quantity = entry.getValue();
                         double price = prices.get(bookId);
-
-                        // Save this book in the purchase
                         itemPS.setInt(1, purchaseId);
                         itemPS.setInt(2, bookId);
                         itemPS.setInt(3, quantity);
                         itemPS.setDouble(4, price);
-
                         itemPS.executeUpdate();
-
-                        // Reduce the available stock
                         stockPS.setInt(1, quantity);
                         stockPS.setInt(2, bookId);
                         stockPS.setInt(3, quantity);
@@ -224,9 +205,7 @@ public class PurchaseDAO {
                     }
                 }
 
-                // 5. Commit all changes together
                 con.commit();
-
                 return purchaseId;
 
             } catch (SQLException | RuntimeException e) {
@@ -241,7 +220,6 @@ public class PurchaseDAO {
         }
     }
 
-    // Retrieve all purchases
     public List<Purchase> getAllPurchases() throws SQLException {
 
         List<Purchase> purchases = new ArrayList<>();
@@ -271,8 +249,6 @@ public class PurchaseDAO {
 
         return purchases;
     }
-
-    // Retrieve the individual books in a purchase
     public List<Object[]> getPurchaseDetails(int purchaseId)
             throws SQLException {
 
