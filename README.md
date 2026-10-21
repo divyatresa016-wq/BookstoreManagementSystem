@@ -7,7 +7,7 @@ A desktop-based Bookstore Management System developed using **Java Swing** and *
 - Manage customer records
 - Record purchases and purchase items
 - Store and retrieve data using a MySQL database
-- Graphical User interface built using Java Swing and styled using FlatLaf for visual appearance.
+- Graphical User Interface built using Java Swing and styled using FlatLaf for visual appearance.
 
 ## Technologies Used
 - Java
