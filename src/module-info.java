@@ -1,9 +1,4 @@
-/**
- * 
- */
-/**
- * 
- */
+
 module BookstoreManagementSystem {
     requires java.sql;
     requires java.desktop;
