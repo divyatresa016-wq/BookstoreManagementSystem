@@ -18,6 +18,8 @@ public class BookManagement extends JFrame {
     private JTextField priceField;
     private JTextField stockField;
 
+    private JTextField searchTitleField;
+
     private JTable bookTable;
     private DefaultTableModel tableModel;
 
@@ -28,13 +30,15 @@ public class BookManagement extends JFrame {
         bookDAO = new BookDAO();
 
         setTitle("Book Management");
-        setSize(850, 550);
+        setSize(950, 650);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
         // Book input form
-        JPanel formPanel = new JPanel(new GridLayout(5, 2, 8, 8));
+        JPanel formPanel = new JPanel(
+                new GridLayout(5, 2, 8, 8));
+
         formPanel.setBackground(new Color(248, 247, 241));
         formPanel.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(8, 12, 8, 12),
@@ -62,7 +66,34 @@ public class BookManagement extends JFrame {
         formPanel.add(new JLabel("Stock:"));
         formPanel.add(stockField);
 
-        add(formPanel, BorderLayout.NORTH);
+        // Main top panel
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.add(formPanel, BorderLayout.CENTER);
+
+        // Search by title panel
+        JPanel searchPanel = new JPanel(
+                new FlowLayout(FlowLayout.LEFT, 10, 8));
+
+        searchPanel.setBackground(new Color(248, 247, 241));
+        searchPanel.setBorder(BorderFactory.createEmptyBorder(
+                0, 12, 0, 12));
+
+        searchTitleField = new JTextField(25);
+
+        JButton searchTitleButton =
+                new JButton("Search by Title");
+
+        JButton showAllButton =
+                new JButton("Show All Books");
+
+        searchPanel.add(new JLabel("Search Title:"));
+        searchPanel.add(searchTitleField);
+        searchPanel.add(searchTitleButton);
+        searchPanel.add(showAllButton);
+
+        topPanel.add(searchPanel, BorderLayout.SOUTH);
+
+        add(topPanel, BorderLayout.NORTH);
 
         // Book table
         String[] columns = {
@@ -72,49 +103,57 @@ public class BookManagement extends JFrame {
 
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(int row, int column) {
+            public boolean isCellEditable(
+                    int row, int column) {
                 return false;
             }
         };
 
+        bookTable = new JTable(tableModel);
 
-bookTable = new JTable(tableModel);
-bookTable.setSelectionMode(
-        ListSelectionModel.SINGLE_SELECTION);
+        bookTable.setSelectionMode(
+                ListSelectionModel.SINGLE_SELECTION);
 
-// Modern table appearance
-bookTable.setRowHeight(30);
-bookTable.setFont(new Font("SansSerif", Font.PLAIN, 14));
-bookTable.setForeground(new Color(65, 55, 45));
-bookTable.setBackground(new Color(255, 253, 248));
-bookTable.setSelectionBackground(new Color(232, 220, 200));
-bookTable.setSelectionForeground(new Color(65, 55, 45));
-//Visible borders between rows and columns
-bookTable.setGridColor(new Color(205, 195, 180));
-bookTable.setShowGrid(true);
-bookTable.setShowVerticalLines(true);
-bookTable.setShowHorizontalLines(true);
-bookTable.setIntercellSpacing(new Dimension(1, 1));
+        // Modern table appearance
+        bookTable.setRowHeight(30);
+        bookTable.setFont(
+                new Font("SansSerif", Font.PLAIN, 14));
 
-// Table header appearance
-bookTable.getTableHeader().setFont(
-        new Font("SansSerif", Font.BOLD, 14));
-bookTable.getTableHeader().setBackground(
-        new Color(232, 220, 200));
-bookTable.getTableHeader().setForeground(
-        new Color(65, 55, 45));
-bookTable.getTableHeader().setPreferredSize(
-        new Dimension(0, 36));
+        bookTable.setForeground(new Color(65, 55, 45));
+        bookTable.setBackground(new Color(255, 253, 248));
+        bookTable.setSelectionBackground(new Color(232, 220, 200));
+        bookTable.setSelectionForeground(new Color(65, 55, 45));
 
-// Scroll pane
-JScrollPane bookScrollPane = new JScrollPane(bookTable);
-bookScrollPane.setBorder(
-        BorderFactory.createEmptyBorder(8, 12, 8, 12));
-bookScrollPane.getViewport().setBackground(
-        new Color(255, 253, 248));
+        bookTable.setGridColor(new Color(205, 195, 180));
+        bookTable.setShowGrid(true);
+        bookTable.setShowVerticalLines(true);
+        bookTable.setShowHorizontalLines(true);
+        bookTable.setIntercellSpacing(new Dimension(1, 1));
 
-add(bookScrollPane, BorderLayout.CENTER);
+        // Table header appearance
+        bookTable.getTableHeader().setFont(
+                new Font("SansSerif", Font.BOLD, 14));
 
+        bookTable.getTableHeader().setBackground(
+                new Color(232, 220, 200));
+
+        bookTable.getTableHeader().setForeground(
+                new Color(65, 55, 45));
+
+        bookTable.getTableHeader().setPreferredSize(
+                new Dimension(0, 36));
+
+        // Scroll pane
+        JScrollPane bookScrollPane =
+                new JScrollPane(bookTable);
+
+        bookScrollPane.setBorder(
+                BorderFactory.createEmptyBorder(8, 12, 8, 12));
+
+        bookScrollPane.getViewport().setBackground(
+                new Color(255, 253, 248));
+
+        add(bookScrollPane, BorderLayout.CENTER);
 
         // Buttons
         JPanel buttonPanel = new JPanel(
@@ -143,6 +182,16 @@ add(bookScrollPane, BorderLayout.CENTER);
         updateButton.addActionListener(e -> updateStock());
         deleteButton.addActionListener(e -> deleteBook());
         clearButton.addActionListener(e -> clearFields());
+
+        searchTitleButton.addActionListener(e -> searchByTitle());
+        showAllButton.addActionListener(e -> {
+            searchTitleField.setText("");
+            loadBooks();
+        });
+
+        // Press Enter in the search field to search
+        searchTitleField.addActionListener(
+                e -> searchByTitle());
 
         // Load existing books
         loadBooks();
@@ -213,6 +262,7 @@ add(bookScrollPane, BorderLayout.CENTER);
                     this, "Book added successfully!");
 
             clearFields();
+            searchTitleField.setText("");
             loadBooks();
 
         } catch (SQLException ex) {
@@ -237,6 +287,50 @@ add(bookScrollPane, BorderLayout.CENTER);
                         book.getPrice(),
                         book.getStock()
                 });
+            }
+
+        } catch (SQLException ex) {
+            showDatabaseError(ex);
+        }
+    }
+
+    // Search for books by title
+    private void searchByTitle() {
+
+        String title = searchTitleField.getText().trim();
+
+        if (title.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Enter a book title to search.",
+                    "Search",
+                    JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        try {
+            List<Book> books =
+                    bookDAO.searchBooksByTitle(title);
+
+            tableModel.setRowCount(0);
+
+            for (Book book : books) {
+                tableModel.addRow(new Object[]{
+                        book.getBookId(),
+                        book.getTitle(),
+                        book.getAuthor(),
+                        book.getCategory(),
+                        book.getPrice(),
+                        book.getStock()
+                });
+            }
+
+            if (books.isEmpty()) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "No books found matching: " + title,
+                        "No Results",
+                        JOptionPane.INFORMATION_MESSAGE);
             }
 
         } catch (SQLException ex) {
@@ -285,6 +379,7 @@ add(bookScrollPane, BorderLayout.CENTER);
             stockField.setText(String.valueOf(book.getStock()));
 
             tableModel.setRowCount(0);
+
             tableModel.addRow(new Object[]{
                     book.getBookId(),
                     book.getTitle(),
@@ -339,10 +434,16 @@ add(bookScrollPane, BorderLayout.CENTER);
         }
 
         try {
-            bookDAO.updateStock(bookId, newStock);
+            boolean updated =
+                    bookDAO.updateStock(bookId, newStock);
 
-            JOptionPane.showMessageDialog(
-                    this, "Stock updated successfully!");
+            if (updated) {
+                JOptionPane.showMessageDialog(
+                        this, "Stock updated successfully!");
+            } else {
+                JOptionPane.showMessageDialog(
+                        this, "Book not found.");
+            }
 
             loadBooks();
 
@@ -380,10 +481,15 @@ add(bookScrollPane, BorderLayout.CENTER);
         }
 
         try {
-            bookDAO.deleteBook(bookId);
+            boolean deleted = bookDAO.deleteBook(bookId);
 
-            JOptionPane.showMessageDialog(
-                    this, "Book deleted successfully!");
+            if (deleted) {
+                JOptionPane.showMessageDialog(
+                        this, "Book deleted successfully!");
+            } else {
+                JOptionPane.showMessageDialog(
+                        this, "Book not found.");
+            }
 
             clearFields();
             loadBooks();
