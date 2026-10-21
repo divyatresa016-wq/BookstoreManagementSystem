@@ -1,5 +1,4 @@
 
-
 package view;
 
 import dao.BookDAO;
@@ -19,7 +18,7 @@ import java.util.List;
 
 public class PurchaseManagement extends JFrame {
 
-    private JTextField customerIdField;
+    private JTextField customerNameField;
     private JTextField bookIdField;
     private JTextField quantityField;
 
@@ -59,10 +58,11 @@ public class PurchaseManagement extends JFrame {
                 BorderFactory.createEmptyBorder(8, 12, 4, 12),
                 BorderFactory.createTitledBorder("Customer Details")
         ));
-        customerIdField = new JTextField();
 
-        customerPanel.add(new JLabel("Customer ID:"));
-        customerPanel.add(customerIdField);
+        customerNameField = new JTextField();
+
+        customerPanel.add(new JLabel("Customer Name:"));
+        customerPanel.add(customerNameField);
 
         // Book selection form
         JPanel bookPanel = new JPanel(new GridLayout(2, 2, 8, 8));
@@ -102,7 +102,7 @@ public class PurchaseManagement extends JFrame {
         };
 
         cartTable = new JTable(cartModel);
-     // Shopping cart table appearance
+
         cartTable.setRowHeight(30);
         cartTable.setFont(new Font("SansSerif", Font.PLAIN, 14));
         cartTable.setForeground(new Color(65, 55, 45));
@@ -150,7 +150,7 @@ public class PurchaseManagement extends JFrame {
         };
 
         historyTable = new JTable(historyModel);
-     // Purchase history table appearance
+
         historyTable.setRowHeight(30);
         historyTable.setFont(new Font("SansSerif", Font.PLAIN, 14));
         historyTable.setForeground(new Color(65, 55, 45));
@@ -196,7 +196,6 @@ public class PurchaseManagement extends JFrame {
 
         // Buttons and total
         JPanel bottomPanel = new JPanel(new BorderLayout(5, 5));
-
         JPanel buttonPanel = new JPanel(new FlowLayout());
 
         JButton addButton = new JButton("Add Book");
@@ -247,7 +246,8 @@ public class PurchaseManagement extends JFrame {
 
             if (bookId <= 0 || quantity <= 0) {
                 JOptionPane.showMessageDialog(
-                        this, "Book ID and quantity must be positive."
+                        this,
+                        "Book ID and quantity must be positive."
                 );
                 return;
             }
@@ -267,12 +267,12 @@ public class PurchaseManagement extends JFrame {
             for (int i = 0; i < cartModel.getRowCount(); i++) {
 
                 int currentBookId =
-                        (int) cartModel.getValueAt(i, 0);
+                        ((Number) cartModel.getValueAt(i, 0)).intValue();
 
                 if (currentBookId == bookId) {
                     existingRow = i;
                     existingQuantity =
-                            (int) cartModel.getValueAt(i, 3);
+                            ((Number) cartModel.getValueAt(i, 3)).intValue();
                     break;
                 }
             }
@@ -302,7 +302,6 @@ public class PurchaseManagement extends JFrame {
                 cartModel.setValueAt(newQuantity, existingRow, 3);
                 cartModel.setValueAt(subtotal, existingRow, 4);
 
-                // Update the corresponding cart item
                 cart.get(existingRow).setQuantity(newQuantity);
 
             } else {
@@ -334,6 +333,23 @@ public class PurchaseManagement extends JFrame {
         } catch (SQLException ex) {
             showDatabaseError(ex);
         }
+    }
+
+    // Find customers whose names match the entered name
+    private List<Customer> findCustomersByName(String name)
+            throws SQLException {
+
+        List<Customer> matches = new ArrayList<>();
+        List<Customer> customers = customerDAO.getAllCustomers();
+
+        for (Customer customer : customers) {
+            if (customer.getName() != null
+                    && customer.getName().trim().equalsIgnoreCase(name)) {
+                matches.add(customer);
+            }
+        }
+
+        return matches;
     }
 
     // Remove the selected book from the cart
@@ -368,8 +384,22 @@ public class PurchaseManagement extends JFrame {
         );
     }
 
-    // Complete the purchase for all cart items
+    // Complete purchase using the customer name
     private void completePurchase() {
+
+        String customerName = customerNameField.getText().trim();
+
+        // Customer name is compulsory
+        if (customerName.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Customer name is required.",
+                    "Validation Error",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            customerNameField.requestFocusInWindow();
+            return;
+        }
 
         if (cart.isEmpty()) {
             JOptionPane.showMessageDialog(
@@ -379,31 +409,55 @@ public class PurchaseManagement extends JFrame {
         }
 
         try {
-            int customerId =
-                    Integer.parseInt(customerIdField.getText().trim());
+            // Retrieve the customer from the database by name
+            List<Customer> matches = findCustomersByName(customerName);
 
-            if (customerId <= 0) {
+            if (matches.isEmpty()) {
                 JOptionPane.showMessageDialog(
-                        this, "Enter a valid Customer ID."
+                        this,
+                        "Customer not found. Please enter a valid customer name.",
+                        "Invalid Customer",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                customerNameField.requestFocusInWindow();
+                return;
+            }
+
+            // Prevent purchases being assigned to the wrong customer
+            if (matches.size() > 1) {
+                StringBuilder message = new StringBuilder(
+                        "Multiple customers have this name.\n"
+                        + "Please use a unique customer name.\n\n"
+                        + "Matching customers:\n"
+                );
+
+                for (Customer customer : matches) {
+                    message.append("Customer ID: ")
+                            .append(customer.getCustomerId())
+                            .append(" - ")
+                            .append(customer.getName())
+                            .append("\n");
+                }
+
+                JOptionPane.showMessageDialog(
+                        this,
+                        message.toString(),
+                        "Duplicate Customer Name",
+                        JOptionPane.WARNING_MESSAGE
                 );
                 return;
             }
 
-            Customer customer =
-                    customerDAO.searchCustomerById(customerId);
-
-            if (customer == null) {
-                JOptionPane.showMessageDialog(
-                        this, "Customer ID does not exist."
-                );
-                return;
-            }
+            // Automatically retrieve the customer's ID
+            Customer customer = matches.get(0);
+            int customerId = customer.getCustomerId();
 
             updateCartTotal();
 
             int choice = JOptionPane.showConfirmDialog(
                     this,
                     "Customer: " + customer.getName()
+                            + "\nCustomer ID: " + customerId
                             + "\nNumber of distinct books: " + cart.size()
                             + "\n" + totalLabel.getText()
                             + "\n\nConfirm this purchase?",
@@ -415,6 +469,7 @@ public class PurchaseManagement extends JFrame {
                 return;
             }
 
+            // Save the purchase using the retrieved customer ID
             int purchaseId =
                     purchaseDAO.createPurchase(customerId, cart);
 
@@ -422,16 +477,14 @@ public class PurchaseManagement extends JFrame {
                     this,
                     "Purchase completed successfully!"
                             + "\nPurchase ID: " + purchaseId
+                            + "\nCustomer ID: " + customerId
                             + "\n" + totalLabel.getText()
             );
 
             clearCart();
+            customerNameField.setText("");
             loadPurchaseHistory();
 
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(
-                    this, "Enter a valid Customer ID."
-            );
         } catch (SQLException ex) {
             showDatabaseError(ex);
         }
@@ -469,6 +522,7 @@ public class PurchaseManagement extends JFrame {
         updateCartTotal();
     }
 
+    // Display database errors
     private void showDatabaseError(SQLException ex) {
 
         JOptionPane.showMessageDialog(
@@ -526,7 +580,7 @@ public class PurchaseManagement extends JFrame {
             }
 
             JTable detailTable = new JTable(detailModel);
-         // Purchase details table appearance
+
             detailTable.setRowHeight(30);
             detailTable.setFont(new Font("SansSerif", Font.PLAIN, 14));
             detailTable.setForeground(new Color(65, 55, 45));
@@ -534,14 +588,12 @@ public class PurchaseManagement extends JFrame {
             detailTable.setSelectionBackground(new Color(232, 220, 200));
             detailTable.setSelectionForeground(new Color(65, 55, 45));
 
-            // Make row and column borders visible
             detailTable.setGridColor(new Color(205, 195, 180));
             detailTable.setShowGrid(true);
             detailTable.setShowVerticalLines(true);
             detailTable.setShowHorizontalLines(true);
             detailTable.setIntercellSpacing(new Dimension(1, 1));
 
-            // Style the table header
             detailTable.getTableHeader().setFont(
                     new Font("SansSerif", Font.BOLD, 14)
             );
@@ -569,7 +621,7 @@ public class PurchaseManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
-
 }
+
 
 
