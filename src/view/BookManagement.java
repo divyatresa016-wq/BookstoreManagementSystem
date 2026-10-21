@@ -17,9 +17,7 @@ public class BookManagement extends JFrame {
     private JTextField categoryField;
     private JTextField priceField;
     private JTextField stockField;
-
     private JTextField searchTitleField;
-
     private JTable bookTable;
     private DefaultTableModel tableModel;
 
@@ -35,7 +33,6 @@ public class BookManagement extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
-        // Book input form
         JPanel formPanel = new JPanel(
                 new GridLayout(5, 2, 8, 8));
 
@@ -66,11 +63,8 @@ public class BookManagement extends JFrame {
         formPanel.add(new JLabel("Stock:"));
         formPanel.add(stockField);
 
-        // Main top panel
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(formPanel, BorderLayout.CENTER);
-
-        // Search by title panel
         JPanel searchPanel = new JPanel(
                 new FlowLayout(FlowLayout.LEFT, 10, 8));
 
@@ -94,8 +88,6 @@ public class BookManagement extends JFrame {
         topPanel.add(searchPanel, BorderLayout.SOUTH);
 
         add(topPanel, BorderLayout.NORTH);
-
-        // Book table
         String[] columns = {
                 "Book ID", "Title", "Author",
                 "Category", "Price", "Stock"
@@ -113,8 +105,6 @@ public class BookManagement extends JFrame {
 
         bookTable.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION);
-
-        // Modern table appearance
         bookTable.setRowHeight(30);
         bookTable.setFont(
                 new Font("SansSerif", Font.PLAIN, 14));
@@ -129,8 +119,6 @@ public class BookManagement extends JFrame {
         bookTable.setShowVerticalLines(true);
         bookTable.setShowHorizontalLines(true);
         bookTable.setIntercellSpacing(new Dimension(1, 1));
-
-        // Table header appearance
         bookTable.getTableHeader().setFont(
                 new Font("SansSerif", Font.BOLD, 14));
 
@@ -143,7 +131,6 @@ public class BookManagement extends JFrame {
         bookTable.getTableHeader().setPreferredSize(
                 new Dimension(0, 36));
 
-        // Scroll pane
         JScrollPane bookScrollPane =
                 new JScrollPane(bookTable);
 
@@ -154,8 +141,6 @@ public class BookManagement extends JFrame {
                 new Color(255, 253, 248));
 
         add(bookScrollPane, BorderLayout.CENTER);
-
-        // Buttons
         JPanel buttonPanel = new JPanel(
                 new FlowLayout(FlowLayout.CENTER, 8, 8));
 
@@ -174,8 +159,6 @@ public class BookManagement extends JFrame {
         buttonPanel.add(clearButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
-
-        // Button actions
         addButton.addActionListener(e -> addBook());
         refreshButton.addActionListener(e -> loadBooks());
         searchButton.addActionListener(e -> searchBook());
@@ -188,18 +171,12 @@ public class BookManagement extends JFrame {
             searchTitleField.setText("");
             loadBooks();
         });
-
-        // Press Enter in the search field to search
         searchTitleField.addActionListener(
                 e -> searchByTitle());
-
-        // Load existing books
         loadBooks();
 
         setVisible(true);
     }
-
-    // Add a new book
     private void addBook() {
 
         String title = titleField.getText().trim();
@@ -269,8 +246,6 @@ public class BookManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
-
-    // Display all books
     private void loadBooks() {
 
         try {
@@ -293,8 +268,6 @@ public class BookManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
-
-    // Search for books by title
     private void searchByTitle() {
 
         String title = searchTitleField.getText().trim();
@@ -337,8 +310,6 @@ public class BookManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
-
-    // Search for a book using its ID
     private void searchBook() {
 
         String input = JOptionPane.showInputDialog(
@@ -393,8 +364,6 @@ public class BookManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
-
-    // Update the stock of a selected book
     private void updateStock() {
 
         int selectedRow = bookTable.getSelectedRow();
@@ -451,8 +420,6 @@ public class BookManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
-
-    // Delete a selected book
     private void deleteBook() {
 
         int selectedRow = bookTable.getSelectedRow();
@@ -504,8 +471,6 @@ public class BookManagement extends JFrame {
                     JOptionPane.ERROR_MESSAGE);
         }
     }
-
-    // Clear all input fields
     private void clearFields() {
 
         titleField.setText("");
@@ -516,8 +481,6 @@ public class BookManagement extends JFrame {
 
         bookTable.clearSelection();
     }
-
-    // Display database errors
     private void showDatabaseError(SQLException ex) {
 
         JOptionPane.showMessageDialog(
