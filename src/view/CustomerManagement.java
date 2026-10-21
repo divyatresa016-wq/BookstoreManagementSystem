@@ -54,8 +54,6 @@ public class CustomerManagement extends JFrame {
         formPanel.add(phoneField);
 
         add(formPanel, BorderLayout.NORTH);
-
-        // Customer table
         tableModel = new DefaultTableModel(
                 new String[]{"ID", "Name", "Email", "Phone"}, 0
         ) {
@@ -69,22 +67,17 @@ public class CustomerManagement extends JFrame {
         customerTable.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION
         );
-     // Modern table appearance
         customerTable.setRowHeight(30);
         customerTable.setFont(new Font("SansSerif", Font.PLAIN, 14));
         customerTable.setForeground(new Color(65, 55, 45));
         customerTable.setBackground(new Color(255, 253, 248));
         customerTable.setSelectionBackground(new Color(232, 220, 200));
         customerTable.setSelectionForeground(new Color(65, 55, 45));
-
-        // Visible borders between rows and columns
         customerTable.setGridColor(new Color(205, 195, 180));
         customerTable.setShowGrid(true);
         customerTable.setShowVerticalLines(true);
         customerTable.setShowHorizontalLines(true);
         customerTable.setIntercellSpacing(new Dimension(1, 1));
-
-        // Table header appearance
         customerTable.getTableHeader().setFont(
                 new Font("SansSerif", Font.BOLD, 14)
         );
@@ -122,7 +115,6 @@ public class CustomerManagement extends JFrame {
                 }
             }
         });
-     // Scroll pane styling
         JScrollPane customerScrollPane = new JScrollPane(customerTable);
         customerScrollPane.setBorder(
                 BorderFactory.createEmptyBorder(8, 12, 8, 12)
@@ -132,7 +124,6 @@ public class CustomerManagement extends JFrame {
         );
 
         add(customerScrollPane, BorderLayout.CENTER);
-        // Customer menu buttons
         JPanel buttonPanel = new JPanel(new FlowLayout());
 
         JButton addButton = new JButton("Add Customer");
@@ -150,8 +141,6 @@ public class CustomerManagement extends JFrame {
         buttonPanel.add(clearButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
-
-        // Menu actions
         addButton.addActionListener(e -> addCustomer());
         viewButton.addActionListener(e -> loadCustomers());
         searchButton.addActionListener(e -> searchCustomer());
@@ -161,8 +150,6 @@ public class CustomerManagement extends JFrame {
 
         loadCustomers();
     }
-
-    // Add a new customer
     private void addCustomer() {
 
         String name = nameField.getText().trim();
@@ -211,8 +198,6 @@ public class CustomerManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
-
-    // Retrieve and display all customers
     private void loadCustomers() {
 
         try {
@@ -233,8 +218,6 @@ public class CustomerManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
-
-    // Search customer by ID
     private void searchCustomer() {
 
         String input = JOptionPane.showInputDialog(
@@ -267,8 +250,6 @@ public class CustomerManagement extends JFrame {
             nameField.setText(customer.getName());
             emailField.setText(customer.getEmail());
             phoneField.setText(customer.getPhone());
-
-            // Highlight the matching customer in the table
             for (int i = 0; i < tableModel.getRowCount(); i++) {
                 int tableId = (int) tableModel.getValueAt(i, 0);
 
@@ -289,12 +270,7 @@ public class CustomerManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
-
-
- // Update selected customer
  private void updateCustomer() {
-
-     // Check whether a customer is selected
      if (selectedCustomerId == -1) {
          JOptionPane.showMessageDialog(
                  this,
@@ -306,8 +282,6 @@ public class CustomerManagement extends JFrame {
      String name = nameField.getText().trim();
      String email = emailField.getText().trim();
      String phone = phoneField.getText().trim();
-
-     // Validate customer name
      if (name.isEmpty()) {
          JOptionPane.showMessageDialog(
                  this, "Name is required."
@@ -342,8 +316,6 @@ public class CustomerManagement extends JFrame {
      }
  }
  
-
-    // Delete customer by ID
     private void deleteCustomer() {
 
         String input = JOptionPane.showInputDialog(
@@ -363,8 +335,6 @@ public class CustomerManagement extends JFrame {
                 );
                 return;
             }
-
-            // Verify that the customer exists before asking for confirmation
             Customer customer = customerDAO.searchCustomerById(id);
 
             if (customer == null) {
@@ -410,8 +380,6 @@ public class CustomerManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
-
-    // Clear input fields and table selection
     private void clearFields() {
         nameField.setText("");
         emailField.setText("");
@@ -420,8 +388,6 @@ public class CustomerManagement extends JFrame {
         customerTable.clearSelection();
         selectedCustomerId = -1;
     }
-
-    // Display database errors
     private void showDatabaseError(SQLException ex) {
         JOptionPane.showMessageDialog(
                 this,
