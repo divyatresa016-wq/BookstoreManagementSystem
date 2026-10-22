@@ -1,4 +1,3 @@
-
 package view;
 
 import dao.BookDAO;
@@ -17,7 +16,9 @@ public class BookManagement extends JFrame {
     private JTextField categoryField;
     private JTextField priceField;
     private JTextField stockField;
+
     private JTextField searchTitleField;
+
     private JTable bookTable;
     private DefaultTableModel tableModel;
 
@@ -33,8 +34,7 @@ public class BookManagement extends JFrame {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout(10, 10));
 
-        JPanel formPanel = new JPanel(
-                new GridLayout(5, 2, 8, 8));
+        JPanel formPanel = new JPanel(new GridLayout(5, 2, 8, 8));
 
         formPanel.setBackground(new Color(248, 247, 241));
         formPanel.setBorder(BorderFactory.createCompoundBorder(
@@ -64,7 +64,9 @@ public class BookManagement extends JFrame {
         formPanel.add(stockField);
 
         JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBackground(new Color(248, 247, 241));
         topPanel.add(formPanel, BorderLayout.CENTER);
+
         JPanel searchPanel = new JPanel(
                 new FlowLayout(FlowLayout.LEFT, 10, 8));
 
@@ -74,11 +76,8 @@ public class BookManagement extends JFrame {
 
         searchTitleField = new JTextField(25);
 
-        JButton searchTitleButton =
-                new JButton("Search by Title");
-
-        JButton showAllButton =
-                new JButton("Show All Books");
+        JButton searchTitleButton = new JButton("Search by Title");
+        JButton showAllButton = new JButton("Show All Books");
 
         searchPanel.add(new JLabel("Search Title:"));
         searchPanel.add(searchTitleField);
@@ -88,6 +87,7 @@ public class BookManagement extends JFrame {
         topPanel.add(searchPanel, BorderLayout.SOUTH);
 
         add(topPanel, BorderLayout.NORTH);
+
         String[] columns = {
                 "Book ID", "Title", "Author",
                 "Category", "Price", "Stock"
@@ -95,20 +95,17 @@ public class BookManagement extends JFrame {
 
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
-            public boolean isCellEditable(
-                    int row, int column) {
+            public boolean isCellEditable(int row, int column) {
                 return false;
             }
         };
 
         bookTable = new JTable(tableModel);
-
         bookTable.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION);
-        bookTable.setRowHeight(30);
-        bookTable.setFont(
-                new Font("SansSerif", Font.PLAIN, 14));
 
+        bookTable.setRowHeight(30);
+        bookTable.setFont(new Font("SansSerif", Font.PLAIN, 14));
         bookTable.setForeground(new Color(65, 55, 45));
         bookTable.setBackground(new Color(255, 253, 248));
         bookTable.setSelectionBackground(new Color(232, 220, 200));
@@ -119,28 +116,24 @@ public class BookManagement extends JFrame {
         bookTable.setShowVerticalLines(true);
         bookTable.setShowHorizontalLines(true);
         bookTable.setIntercellSpacing(new Dimension(1, 1));
+
         bookTable.getTableHeader().setFont(
                 new Font("SansSerif", Font.BOLD, 14));
-
         bookTable.getTableHeader().setBackground(
                 new Color(232, 220, 200));
-
         bookTable.getTableHeader().setForeground(
                 new Color(65, 55, 45));
-
         bookTable.getTableHeader().setPreferredSize(
                 new Dimension(0, 36));
 
-        JScrollPane bookScrollPane =
-                new JScrollPane(bookTable);
-
+        JScrollPane bookScrollPane = new JScrollPane(bookTable);
         bookScrollPane.setBorder(
                 BorderFactory.createEmptyBorder(8, 12, 8, 12));
-
         bookScrollPane.getViewport().setBackground(
                 new Color(255, 253, 248));
 
         add(bookScrollPane, BorderLayout.CENTER);
+
         JPanel buttonPanel = new JPanel(
                 new FlowLayout(FlowLayout.CENTER, 8, 8));
 
@@ -159,6 +152,7 @@ public class BookManagement extends JFrame {
         buttonPanel.add(clearButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
+
         addButton.addActionListener(e -> addBook());
         refreshButton.addActionListener(e -> loadBooks());
         searchButton.addActionListener(e -> searchBook());
@@ -167,18 +161,21 @@ public class BookManagement extends JFrame {
         clearButton.addActionListener(e -> clearFields());
 
         searchTitleButton.addActionListener(e -> searchByTitle());
+
         showAllButton.addActionListener(e -> {
             searchTitleField.setText("");
             loadBooks();
         });
-        searchTitleField.addActionListener(
-                e -> searchByTitle());
+
+        searchTitleField.addActionListener(e -> searchByTitle());
+
         loadBooks();
 
         setVisible(true);
     }
-    private void addBook() {
 
+
+    private void addBook() {
         String title = titleField.getText().trim();
         String author = authorField.getText().trim();
         String category = categoryField.getText().trim();
@@ -196,11 +193,8 @@ public class BookManagement extends JFrame {
         int stock;
 
         try {
-            price = Double.parseDouble(
-                    priceField.getText().trim());
-
-            stock = Integer.parseInt(
-                    stockField.getText().trim());
+            price = Double.parseDouble(priceField.getText().trim());
+            stock = Integer.parseInt(stockField.getText().trim());
 
         } catch (NumberFormatException ex) {
             JOptionPane.showMessageDialog(
@@ -230,17 +224,32 @@ public class BookManagement extends JFrame {
         }
 
         try {
+            if (bookDAO.bookTitleExists(title)) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Book already exists.",
+                        "Duplicate Book",
+                        JOptionPane.WARNING_MESSAGE);
+                titleField.requestFocusInWindow();
+                return;
+            }
+
             Book book = new Book(
                     0, title, author, category, price, stock);
 
-            bookDAO.addBook(book);
+            boolean success = bookDAO.addBook(book);
 
-            JOptionPane.showMessageDialog(
-                    this, "Book added successfully!");
+            if (success) {
+                JOptionPane.showMessageDialog(
+                        this, "Book added successfully!");
 
-            clearFields();
-            searchTitleField.setText("");
-            loadBooks();
+                clearFields();
+                searchTitleField.setText("");
+                loadBooks();
+            } else {
+                JOptionPane.showMessageDialog(
+                        this, "Book could not be added.");
+            }
 
         } catch (SQLException ex) {
             showDatabaseError(ex);
@@ -268,6 +277,7 @@ public class BookManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
+
     private void searchByTitle() {
 
         String title = searchTitleField.getText().trim();
@@ -282,8 +292,7 @@ public class BookManagement extends JFrame {
         }
 
         try {
-            List<Book> books =
-                    bookDAO.searchBooksByTitle(title);
+            List<Book> books = bookDAO.searchBooksByTitle(title);
 
             tableModel.setRowCount(0);
 
@@ -364,6 +373,7 @@ public class BookManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
+
     private void updateStock() {
 
         int selectedRow = bookTable.getSelectedRow();
@@ -403,8 +413,7 @@ public class BookManagement extends JFrame {
         }
 
         try {
-            boolean updated =
-                    bookDAO.updateStock(bookId, newStock);
+            boolean updated = bookDAO.updateStock(bookId, newStock);
 
             if (updated) {
                 JOptionPane.showMessageDialog(
@@ -420,6 +429,7 @@ public class BookManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
+
     private void deleteBook() {
 
         int selectedRow = bookTable.getSelectedRow();
@@ -465,12 +475,13 @@ public class BookManagement extends JFrame {
             JOptionPane.showMessageDialog(
                     this,
                     "Could not delete this book. It may be linked "
-                    + "to an existing purchase.\n\n"
-                    + ex.getMessage(),
+                            + "to an existing purchase.\n\n"
+                            + ex.getMessage(),
                     "Deletion Error",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
+
     private void clearFields() {
 
         titleField.setText("");
@@ -481,6 +492,7 @@ public class BookManagement extends JFrame {
 
         bookTable.clearSelection();
     }
+
     private void showDatabaseError(SQLException ex) {
 
         JOptionPane.showMessageDialog(
