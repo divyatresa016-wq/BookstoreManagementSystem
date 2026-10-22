@@ -1,4 +1,3 @@
-
 package dao;
 
 import database.DBConnection;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CustomerDAO {
-
     public boolean addCustomer(Customer customer)
             throws SQLException {
 
@@ -30,7 +28,6 @@ public class CustomerDAO {
             return ps.executeUpdate() > 0;
         }
     }
-
     public List<Customer> getAllCustomers()
             throws SQLException {
 
@@ -57,7 +54,6 @@ public class CustomerDAO {
 
         return customers;
     }
-
     public Customer searchCustomerById(int customerId)
             throws SQLException {
 
@@ -121,5 +117,41 @@ public class CustomerDAO {
             return ps.executeUpdate() > 0;
         }
     }
+    
+
+    public boolean customerNameExists(String name) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM customers "
+            + "WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))";
+
+        try (Connection con = DBConnection.getInstance().getConnection();
+            PreparedStatement ps = con.prepareStatement(sql)) {
+
+         ps.setString(1, name);
+
+         try (ResultSet rs = ps.executeQuery()) {
+            return rs.next() && rs.getInt(1) > 0;
+        }
+    }
+}
+
+    public boolean customerNameExists(String name, int excludeCustomerId)
+        throws SQLException {
+
+        String sql = "SELECT COUNT(*) FROM customers "
+            + "WHERE LOWER(TRIM(name)) = LOWER(TRIM(?)) "
+            + "AND customer_id <> ?";
+
+        try (Connection con = DBConnection.getInstance().getConnection();
+           PreparedStatement ps = con.prepareStatement(sql)) {
+
+         ps.setString(1, name);
+         ps.setInt(2, excludeCustomerId);
+ 
+         try (ResultSet rs = ps.executeQuery()) {
+            return rs.next() && rs.getInt(1) > 0;
+        }
+    }
+}
+
 }
 
