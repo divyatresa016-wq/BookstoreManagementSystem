@@ -1,4 +1,3 @@
-
 package view;
 
 import dao.CustomerDAO;
@@ -20,7 +19,7 @@ public class CustomerManagement extends JFrame {
     private DefaultTableModel tableModel;
 
     private CustomerDAO customerDAO;
-    
+
     private int selectedCustomerId = -1;
 
     public CustomerManagement() {
@@ -54,6 +53,7 @@ public class CustomerManagement extends JFrame {
         formPanel.add(phoneField);
 
         add(formPanel, BorderLayout.NORTH);
+
         tableModel = new DefaultTableModel(
                 new String[]{"ID", "Name", "Email", "Phone"}, 0
         ) {
@@ -67,17 +67,20 @@ public class CustomerManagement extends JFrame {
         customerTable.setSelectionMode(
                 ListSelectionModel.SINGLE_SELECTION
         );
+
         customerTable.setRowHeight(30);
         customerTable.setFont(new Font("SansSerif", Font.PLAIN, 14));
         customerTable.setForeground(new Color(65, 55, 45));
         customerTable.setBackground(new Color(255, 253, 248));
         customerTable.setSelectionBackground(new Color(232, 220, 200));
         customerTable.setSelectionForeground(new Color(65, 55, 45));
+
         customerTable.setGridColor(new Color(205, 195, 180));
         customerTable.setShowGrid(true);
         customerTable.setShowVerticalLines(true);
         customerTable.setShowHorizontalLines(true);
         customerTable.setIntercellSpacing(new Dimension(1, 1));
+
         customerTable.getTableHeader().setFont(
                 new Font("SansSerif", Font.BOLD, 14)
         );
@@ -115,6 +118,7 @@ public class CustomerManagement extends JFrame {
                 }
             }
         });
+
         JScrollPane customerScrollPane = new JScrollPane(customerTable);
         customerScrollPane.setBorder(
                 BorderFactory.createEmptyBorder(8, 12, 8, 12)
@@ -124,6 +128,7 @@ public class CustomerManagement extends JFrame {
         );
 
         add(customerScrollPane, BorderLayout.CENTER);
+
         JPanel buttonPanel = new JPanel(new FlowLayout());
 
         JButton addButton = new JButton("Add Customer");
@@ -141,6 +146,7 @@ public class CustomerManagement extends JFrame {
         buttonPanel.add(clearButton);
 
         add(buttonPanel, BorderLayout.SOUTH);
+
         addButton.addActionListener(e -> addCustomer());
         viewButton.addActionListener(e -> loadCustomers());
         searchButton.addActionListener(e -> searchCustomer());
@@ -150,6 +156,7 @@ public class CustomerManagement extends JFrame {
 
         loadCustomers();
     }
+
     private void addCustomer() {
 
         String name = nameField.getText().trim();
@@ -177,6 +184,17 @@ public class CustomerManagement extends JFrame {
         }
 
         try {
+            if (customerDAO.customerNameExists(name)) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Customer already exists.",
+                        "Duplicate Customer",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                nameField.requestFocusInWindow();
+                return;
+            }
+
             Customer customer = new Customer(0, name, email, phone);
 
             boolean success = customerDAO.addCustomer(customer);
@@ -218,6 +236,7 @@ public class CustomerManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
+
     private void searchCustomer() {
 
         String input = JOptionPane.showInputDialog(
@@ -250,6 +269,7 @@ public class CustomerManagement extends JFrame {
             nameField.setText(customer.getName());
             emailField.setText(customer.getEmail());
             phoneField.setText(customer.getPhone());
+
             for (int i = 0; i < tableModel.getRowCount(); i++) {
                 int tableId = (int) tableModel.getValueAt(i, 0);
 
@@ -270,52 +290,76 @@ public class CustomerManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
- private void updateCustomer() {
-     if (selectedCustomerId == -1) {
-         JOptionPane.showMessageDialog(
-                 this,
-                 "Please select a customer from the table first."
-         );
-         return;
-     }
 
-     String name = nameField.getText().trim();
-     String email = emailField.getText().trim();
-     String phone = phoneField.getText().trim();
-     if (name.isEmpty()) {
-         JOptionPane.showMessageDialog(
-                 this, "Name is required."
-         );
-         return;
-     }
+    private void updateCustomer() {
 
-     try {
-         Customer customer = new Customer(
-                 selectedCustomerId, name, email, phone
-         );
+        if (selectedCustomerId == -1) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please select a customer from the table first."
+            );
+            return;
+        }
 
-         boolean success = customerDAO.updateCustomer(customer);
+        String name = nameField.getText().trim();
+        String email = emailField.getText().trim();
+        String phone = phoneField.getText().trim();
 
-         if (success) {
-             JOptionPane.showMessageDialog(
-                     this, "Customer updated successfully!"
-             );
+        if (name.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this, "Name is required."
+            );
+            nameField.requestFocusInWindow();
+            return;
+        }
 
-             loadCustomers();
-             clearFields();
+        if (phone.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this, "Phone number is required."
+            );
+            phoneField.requestFocusInWindow();
+            return;
+        }
 
-         } else {
-             JOptionPane.showMessageDialog(
-                     this,
-                     "Customer could not be updated. Please refresh the table."
-             );
-         }
+        try {
 
-     } catch (SQLException ex) {
-         showDatabaseError(ex);
-     }
- }
- 
+            if (customerDAO.customerNameExists(name, selectedCustomerId)) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Another customer with this name already exists.",
+                        "Duplicate Customer",
+                        JOptionPane.WARNING_MESSAGE
+                );
+                nameField.requestFocusInWindow();
+                return;
+            }
+
+            Customer customer = new Customer(
+                    selectedCustomerId, name, email, phone
+            );
+
+            boolean success = customerDAO.updateCustomer(customer);
+
+            if (success) {
+                JOptionPane.showMessageDialog(
+                        this, "Customer updated successfully!"
+                );
+
+                loadCustomers();
+                clearFields();
+
+            } else {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Customer could not be updated. Please refresh the table."
+                );
+            }
+
+        } catch (SQLException ex) {
+            showDatabaseError(ex);
+        }
+    }
+
     private void deleteCustomer() {
 
         String input = JOptionPane.showInputDialog(
@@ -335,6 +379,7 @@ public class CustomerManagement extends JFrame {
                 );
                 return;
             }
+
             Customer customer = customerDAO.searchCustomerById(id);
 
             if (customer == null) {
@@ -380,6 +425,7 @@ public class CustomerManagement extends JFrame {
             showDatabaseError(ex);
         }
     }
+
     private void clearFields() {
         nameField.setText("");
         emailField.setText("");
@@ -388,6 +434,7 @@ public class CustomerManagement extends JFrame {
         customerTable.clearSelection();
         selectedCustomerId = -1;
     }
+
     private void showDatabaseError(SQLException ex) {
         JOptionPane.showMessageDialog(
                 this,
